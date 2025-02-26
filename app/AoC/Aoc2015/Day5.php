@@ -3,7 +3,6 @@
 namespace App\AoC\Aoc2015;
 
 use App\AdventOfCode;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class Day5 extends AdventOfCode
@@ -34,97 +33,45 @@ class Day5 extends AdventOfCode
             return;
         }
 
-        $string = collect(str_split($input));
+        preg_match_all('/(([a-z][a-z])).*\1/', $input, $pairsCheck);
+        $pairsCheck = collect($pairsCheck)
+            ->flatten()
+            ->filter(fn (string $item): bool => Str::of($item)->length() === 2)
+            ->isNotEmpty();
 
-        $letterGroups = $string->chunk(2)
-            ->filter(fn (Collection $chunk): bool => $chunk->count() === 2)
-            ->map(fn (Collection $chunk): Collection => $chunk->values());
+        preg_match_all('/([a-z]).\1/', $input, $overlapCheck);
+        $overlapCheck = collect($overlapCheck)
+            ->flatten()
+            ->filter(fn (string $item): bool => Str::of($item)->length() === 3)
+            ->reject(function (string $item): bool {
+                $letter = Str::of($item)->split(1);
 
-        $offsetLetterGroups = $string->skip(1)->chunk(2)
-            ->filter(fn (Collection $chunk): bool => $chunk->count() === 2)
-            ->map(fn (Collection $chunk): Collection => $chunk->values());
+                return ($letter[0] === $letter[1]) && ($letter[1] === $letter[2]);
+            })
+            ->isNotEmpty();
 
-        $hasLetterPairs = collect()
-            ->merge($letterGroups
-                ->filter(function (Collection $chunk): bool {
-                    return ($chunk->first() === $chunk[1]) || ($chunk[1] === $chunk->last());
-                })
-                ->map(function (Collection $chunk): string {
-                    if ($chunk->first() === $chunk[1]) {
-                        return $chunk->take(2)->implode('');
-                    }
+        preg_match_all('/([a-z]).\1/', $input, $jumpsCheck);
+        $jumpsCheck = collect($jumpsCheck)
+            ->flatten()
+            ->filter(fn (string $item): bool => Str::of($item)->length() === 3)
+            ->isNotEmpty();
 
-                    return $chunk->pop(2)->implode('');
-                }))
-            ->merge($offsetLetterGroups
-                ->filter(function (Collection $chunk): bool {
-                    return ($chunk->first() === $chunk[1]) || ($chunk[1] === $chunk->last());
-                })
-                ->map(function (Collection $chunk): string {
-                    if ($chunk->first() === $chunk[1]) {
-                        return $chunk->take(2)->implode('');
-                    }
-
-                    return $chunk->pop(2)->implode('');
-                })
-            )->duplicates()->isNotEmpty();
-
-        $letterGroups = $string->chunk(3)
-            ->filter(fn (Collection $chunk): bool => $chunk->count() === 3)
-            ->map(fn (Collection $chunk): Collection => $chunk->values());
-
-        $offsetLetterGroups = $string->skip(1)->chunk(3)
-            ->filter(fn (Collection $chunk): bool => $chunk->count() === 3)
-            ->map(fn (Collection $chunk): Collection => $chunk->values());
-
-        $offsetOffsetLetterGroups = $string->skip(2)->chunk(3)
-            ->filter(fn (Collection $chunk): bool => $chunk->count() === 3)
-            ->map(fn (Collection $chunk): Collection => $chunk->values());
-
-        $hasJumpLetters = collect()
-            ->merge($letterGroups
-                ->filter(fn (Collection $chunk): bool => $chunk->first() === $chunk->last())
-                ->map(fn (Collection $chunk): string => $chunk->implode(''))
-            )
-            ->merge($offsetLetterGroups
-                ->filter(fn (Collection $chunk): bool => $chunk->first() === $chunk->last())
-                ->map(fn (Collection $chunk): string => $chunk->implode(''))
-            )
-            ->merge($offsetOffsetLetterGroups
-                ->filter(fn (Collection $chunk): bool => $chunk->first() === $chunk->last())
-                ->map(fn (Collection $chunk): string => $chunk->implode(''))
-            )
-            ->filter()->isNotEmpty();
-
-        $this->result['LatestRules'] = ! $this->isLegacyRules;
-        $this->result['LetterPairs'] = $hasLetterPairs;
-        $this->result['JumpLetters'] = $hasJumpLetters;
+        $this->result['WithoutOverlap'] = $overlapCheck;
+        $this->result['LetterPairs'] = $pairsCheck;
+        $this->result['JumpLetters'] = $jumpsCheck;
     }
 
     protected function solveWithLegacyRules(string $input): void
     {
-        $string = collect(str_split($input));
+        preg_match_all('/[aeiou]/', $input, $vowels);
 
-        $hasThreeVowels = $string
-            ->filter(fn (string $letter): bool => in_array($letter, ['a', 'e', 'i', 'o', 'u']))
-            ->count() >= 3;
+        $hasThreeVowels = collect($vowels)->flatten()->count() >= 3;
 
-        $letterGroups = $string->chunk(2)
-            ->filter(fn (Collection $chunk): bool => $chunk->count() === 2)
-            ->map(fn (Collection $chunk): Collection => $chunk->values())
-            ->filter(fn (Collection $chunk): bool => $chunk->first() === $chunk->last())
-            ->map(fn (Collection $chunk): string => $chunk->implode(''));
+        preg_match_all('/([a-z])\1/', $input, $doubleLetters);
 
-        $offsetLetterGroups = $string->skip(1)->chunk(2)
-            ->filter(fn (Collection $chunk): bool => $chunk->count() === 2)
-            ->map(fn (Collection $chunk): Collection => $chunk->values())
-            ->filter(fn (Collection $chunk): bool => $chunk->first() === $chunk->last())
-            ->map(fn (Collection $chunk): string => $chunk->implode(''));
-
-        $hasDoubleLetters = collect()
-            ->merge($letterGroups)
-            ->merge($offsetLetterGroups)
-            ->filter()
+        $hasDoubleLetters = collect($doubleLetters)
+            ->flatten()
+            ->filter(fn (string $item): bool => Str::of($item)->length() === 2)
             ->isNotEmpty();
 
         $this->result['ThreeVowelsCheck'] = $hasThreeVowels;

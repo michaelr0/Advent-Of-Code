@@ -66,7 +66,7 @@ test('that day 05 is solved', function (string $input, bool $isLegacyList, array
     //
     ['qjhvhtzxzqqjkmpb', false, [], [true, true, true]],
     ['xxyxx', false, [], [true, true, true]],
-    ['aaa', false, [], [true, true, true]],
-    ['uurcxstgmygtbstg', false, [], [true, true, false]],
+    ['aaa', false, [], [false, false, true]],
+    ['uurcxstgmygtbstg', false, [], [false, true, false]],
     ['ieodomkazucvgmuy', false, [], [true, false, true]],
 ]);

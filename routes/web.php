@@ -12,9 +12,8 @@ Route::get('/solve', function () {
     $results = collect(explode(PHP_EOL, $file))
         ->filter()
         ->map(fn (string $line): string => trim($line))
-        ->map(fn (string $line): array => resolve(App\AoC\Aoc2015\Day5::class)->useLegacyRules(true)->blacklist(['ab', 'cd', 'pq', 'xy'])->solve($line))
         ->map(fn (string $line): array => resolve(App\AoC\Aoc2015\Day5::class)->solve($line))
-//        ->filter(fn (array $result): bool => collect($result)->filter()->count() === 3);
+        ->filter(fn (array $result): bool => collect($result)->filter()->count() === 3);
 
     return [$results->count()];
 });

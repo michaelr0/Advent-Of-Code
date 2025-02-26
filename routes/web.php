@@ -7,13 +7,9 @@ Route::get('/', function () {
 });
 
 Route::get('/solve', function () {
-    $file = Storage::disk('aoc')->get('2015/05.input');
+    $file = Storage::disk('aoc')->get('2015/06.input');
 
-    $results = collect(explode(PHP_EOL, $file))
-        ->filter()
-        ->map(fn (string $line): string => trim($line))
-        ->map(fn (string $line): array => resolve(App\AoC\Aoc2015\Day5::class)->solve($line))
-        ->filter(fn (array $result): bool => collect($result)->filter()->count() === 3);
+    $results = resolve(App\AoC\Aoc2015\Day6::class)->withBrightness(true)->solve($file);
 
-    return [$results->count()];
+    return $results;
 });

@@ -23,16 +23,16 @@ jobs:
         with:
           php-version: 8.4
           tools: composer:v2
-          coverage: xdebug
+          coverage: pcov
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Install Node Dependencies
-        run: npm ci
+      #      - name: Setup Node
+      #        uses: actions/setup-node@v4
+      #        with:
+      #          node-version: '22'
+      #          cache: 'npm'
+      #
+      #      - name: Install Node Dependencies
+      #        run: npm ci
 
       - name: Create SQLite Database
         run: touch database/database.sqlite
@@ -46,11 +46,14 @@ jobs:
       - name: Generate Application Key
         run: php artisan key:generate
 
-      - name: Publish Ziggy Configuration
-        run: php artisan ziggy:generate
+      - name: Link Storage
+        run: php artisan storage:link
 
-      - name: Build Assets
-        run: npm run build
+      #      - name: Publish Ziggy Configuration
+      #        run: php artisan ziggy:generate
+
+      #      - name: Build Assets
+      #        run: npm run build
 
       - name: Tests
-        run: ./vendor/bin/phpunit
+        run: php artisan test
